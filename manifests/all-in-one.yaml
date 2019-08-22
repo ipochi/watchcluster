@@ -1,0 +1,85 @@
+# Configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: watchcluster-configmap
+  labels:
+    app: watchcluster
+data:
+  config.yaml: |
+    resources:
+      - name: "pods"
+    eventHandler:
+      slack:
+        token: "ADD_YOUR_TOKEN"
+        channel: "ADD_YOUR_CHANNEL_NAME"
+---
+# serviceaccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: watchcluster-sa
+  labels:
+    app: watchcluster
+---
+# Source: watchcluster/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: watchcluster-clusterrole
+  labels:
+    app: watchcluster
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "watch", "list"]
+---
+# clusterrolebinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: watchcluster-clusterrolebinding
+  labels:
+    app: watchcluster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: watchcluster-clusterrole
+subjects:
+  - kind: ServiceAccount
+    name: watchcluster-sa
+    namespace: watchcluster
+---
+# deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: watchcluster
+  labels:
+    app: watchcluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: watchcluster
+  template:
+    metadata:
+      labels:
+        app: watchcluster
+    spec:
+      serviceAccountName: watchcluster-sa
+      containers:
+        - name: watchcluster
+          #image: "imranpochi/watchcluster:0.1"
+          image: "imranpochi/watchcluster:test"
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/config"
+          env:
+            - name: CONFIG_PATH
+              value: "/config/"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: watchcluster-configmap
