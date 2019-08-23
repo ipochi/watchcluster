@@ -52,14 +52,16 @@ func Start(watchclusterConfig *config.Config) {
 					log.Errorf("Failed to get MetaNamespaceKey from event resource")
 					return
 				}
-				eventObj, ok := obj.(*v1.Event)
+				podObj, ok := obj.(*v1.Pod)
 				if !ok {
 					return
 				}
 
-				// Kind of object
-				kind := strings.ToLower(eventObj.InvolvedObject.Kind)
+				log.Infof("PodObj image--- %v", podObj.Spec.Containers[0].Image)
 
+				// Kind of object
+				kind := strings.ToLower(podObj.Kind)
+				log.Infof("Object --- %v", obj)
 				log.Infof("Kind of object --- %s", kind)
 				sendMessageToSlack(obj, watchclusterConfig, kind)
 
@@ -100,10 +102,11 @@ func sendMessageToSlack(obj interface{}, watchclusterConfig *config.Config, kind
 		AsUser: true,
 	}
 
-	message := "Hello I am coming from the kubernetes cluster ... "
+	message := "Hello I am coming from the kubernetes cluster ... >> "
 	channelID, timestamp, err := api.PostMessage(channel, message, params)
 	if err != nil {
 		log.Errorf("Error in sending slack message %s", err.Error())
+		return
 	}
 
 	log.Infof("Message successfully sent to channel %s at %s", channelID, timestamp)

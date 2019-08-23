@@ -11,8 +11,8 @@ data:
       - name: "pods"
     eventHandler:
       slack:
-        token: "ADD_YOUR_TOKEN"
-        channel: "ADD_YOUR_CHANNEL_NAME"
+        token: "<YOUR_TOKEN>"
+        channel: "<YOUR_CHANNEL>"
 ---
 # serviceaccount
 apiVersion: v1

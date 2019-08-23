@@ -3,7 +3,7 @@
 
 FROM golang:1.12-alpine as builder
 
-RUN apk add git shadow
+RUN apk add git shadow ca-certificates
 
 # Prepare directory for source code and empty directory, which we copy
 # to scratch image
@@ -24,6 +24,9 @@ FROM alpine:3.7
 # Copy executable
 COPY --from=builder /usr/src/watchcluster/tmp /watchcluster
 COPY --from=builder /usr/src/watchcluster/wc /watchcluster/wc
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
 # Required for running as nobody
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group

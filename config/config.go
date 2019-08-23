@@ -10,17 +10,17 @@ import (
 
 // Config
 type Config struct {
-	Resources    []Resource   `json:"resources"`
-	EventHandler EventHandler `json:"eventHandler"`
+	Resources    []Resource   `yaml:"resources"`
+	EventHandler EventHandler `yaml:"eventHandler"`
 }
 
 // Resource contains resources to watch
 type Resource struct {
-	Name string
+	Name string `yaml:"name"`
 }
 
 type EventHandler struct {
-	Slack Slack
+	Slack Slack `yaml:"slack"`
 }
 
 // Slack configuration
